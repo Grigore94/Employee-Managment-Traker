@@ -26,6 +26,7 @@ CREATE TABLE employee (
     manager_id INT NOT NULL,
     PRIMARY KEY(id)
 );
+
 SELECT * FROM departament;
 SELECT * FROM status;
 SELECT * FROM employee;

@@ -30,7 +30,7 @@ function continuePrompt() {
         {
             type: "confirm",
             name: "continue",
-            message: "Would you like to coninue?"
+            message: "Tap YES to Continue"
         }
     ]).then(function (data) {
         if (data.continue) {
@@ -46,7 +46,7 @@ function main() {
     inquirer.prompt([
         {
             type: "list",
-            name: "mainMeniu",
+            name: "mainMenu",
             message: "Select From The Options",
             choices: [
                 "Viw All Employees",
@@ -59,10 +59,10 @@ function main() {
             ]
         }
     ]).then(function (answer) {
-        switch (answer.mainMeniu) {
+        switch (answer.mainMenu) {
             //for employees
             case "View All Emloyees":
-                var query = connection.query("SELECT * FROM employees", function (err, data) {
+                var query = connection.query("SELECT * FROM employee", function (err, data) {
                     if (err) throw err;
                     console.table(data);
                     continuePrompt();
@@ -70,7 +70,7 @@ function main() {
                 break;
             //for departament
             case "View All Departaments":
-                var query = connection.query("SELECT * FROM departaments", function (err, data) {
+                var query = connection.query("SELECT * FROM departament", function (err, data) {
                     if (err) throw err;
                     console.table(data);
                     continuePrompt();
@@ -80,7 +80,7 @@ function main() {
             case "View All Statuses":
                 var query = connection.query("SELECT * FROM status", function (err, data) {
                     if (err) throw err;
-                    console.table;
+                    console.table(data);
                     continuePrompt;
                 });
                 break;
@@ -119,8 +119,8 @@ function main() {
                     });
                 });
                 break;
-                //funtion to add an employee
-                case "Add an Employee":
+            //function to add an employee
+            case "Add an Employee":
                 var query = connection.query("SELECT id, title FROM status", function (err, data) {
                     if (err) throw err;
                     let choices = data.map(x => `${x.id} - ${x.title}`);
@@ -148,14 +148,35 @@ function main() {
                         var statusID = parseInt(arr[0]);
                         var query = connection.query(`INSERT INTO employee (first_name, last_name, status_id, manager_id) VALUES ('${data.firstName}','${data.lastName}','${statusID}',0)`, function (err, data) {
                             if (err) throw err;
-                            return data;
+                            console.log("Emloyee added to DB");
+                            continuePrompt;
                         });
-                        console.log("Departament added to DB");
-                        continuePrompt;
+
                     });
-                    //break;
-                //update employee
-                //case "Update Status":
+                });
+                break;
+            //adding a department 
+            case "Add A Department":
+                inquirer.prompt([
+                    {
+                        type: "input",
+                        name: "department",
+                        message: "Enter the department's name:",
+                        validate: validateString
+                    }
+                ]).then(function (data) {
+                    var query = connection.query(`INSERT INTO department (department) VALUES ('${data.department}');`, function (err, data) {
+                        if (err) throw err;
+                        return data;
+
+                    });
+                    console.log("Department been added!")
+                    continuePrompt();
+                });
+                break;
+
+            //update employee
+            case "Update Employee Status // Assign Manager to Employee":
                 const emplo = {
                     first_name: "",
                     last_name: "",
@@ -168,55 +189,66 @@ function main() {
                     let choices = data.map(x => `${x.id} - ${x.first_name} ${x.last_name}`);
                     inquirer.prompt([
                         {
-                            type: "input",
-                            name: "firstName",
-                            message: "Enter employee first name",
-                            validate: validateString
-                        },
-                        {
-                            type: "input",
-                            name: "lastName",
-                            message: "Enter yemployee last name",
-                            validate: validateString
+                            type: "list",
+                            name: "employee",
+                            message: "Select an employee:",
+                            choices: [...choices]
                         }
                     ]).then(function (data) {
-                        emplo.first_name = data.firstName;
-                        emplo.last_name = data.lastName;
-                        var qery = connection.query("SELECT id, title FROM status", function (err, data) {
-                            if (err) throw err;
-                            let choices = data.map(x => `${x.id} - ${data.title}`);
-                            inquirer.prompt([
-                                {
-                                    type: "list",
-                                    name: "title",
-                                    message: "Select title",
-                                    choices: [...choices]
-                                }
-                            ]).then(function (data) {
-                                var arr = data.title.split(" ");
-                                emplo.status_id = parseInt(arr[0]);
-                                var qyery = connection.query("SELECT id, first_name, last_name FROM employee", function (err, data) {
-                                    if (err) throw err;
-                                    let choices = data.map(x => `${x.id} - ${x.firstName} ${x.lastName}`);
-                                    choices.push("Emplyee do not have a manager");
-                                    inquirer.prompt([
-                                        {
-                                            type: "list",
-                                            name: "manager",
-                                            message: "Cosee a manager for this employee",
-                                            choices: [...choices]
-                                        }
-                                    ]).then(function (data) {
-                                        if (data.manager === "This employee doe not have a manager") {
-                                            emplo.manager_id = null;
-                                        } else {
-                                            var arr = data.manager.split(" ");
-                                            emplo.manager_id = parseInt(arr[0]);
-                                        }
-                                        var query = connection.query(`UPDATE employee SET first_name = '${emp.first_name}', last_name = '${emp.last_name}', role_id = ${emp.role_id}, manager_id = ${emp.manager_id} WHERE id = ${emp.empID}`, function (err, data) {
-                                            if (err) throw err;
-                                            continuePrompt;
-                                            return data;
+                        var arr = data.employee.split(" ");
+                        emp.empID = parseInt(arr[0]);
+                        inquirer.prompt([
+                            {
+                                type: "input",
+                                name: "firstName",
+                                message: "Enter employee first name",
+                                validate: validateString
+                            },
+                            {
+                                type: "input",
+                                name: "lastName",
+                                message: "Enter employee last name",
+                                validate: validateString
+                            }
+                        ]).then(function (data) {
+                            emplo.first_name = data.firstName;
+                            emplo.last_name = data.lastName;
+                            var qery = connection.query("SELECT id, title FROM status", function (err, data) {
+                                if (err) throw err;
+                                let choices = data.map(x => `${x.id} - ${data.title}`);
+                                inquirer.prompt([
+                                    {
+                                        type: "list",
+                                        name: "title",
+                                        message: "Select title",
+                                        choices: [...choices]
+                                    }
+                                ]).then(function (data) {
+                                    var arr = data.title.split(" ");
+                                    emplo.status_id = parseInt(arr[0]);
+                                    var qyery = connection.query("SELECT id, first_name, last_name FROM employee", function (err, data) {
+                                        if (err) throw err;
+                                        let choices = data.map(x => `${x.id} - ${x.firstName} ${x.lastName}`);
+                                        choices.push("Emplyee do not have a manager");
+                                        inquirer.prompt([
+                                            {
+                                                type: "list",
+                                                name: "manager",
+                                                message: "Cosee a manager for this employee",
+                                                choices: [...choices]
+                                            }
+                                        ]).then(function (data) {
+                                            if (data.manager === "This employee does not have a manager") {
+                                                emplo.manager_id = null;
+                                            } else {
+                                                var arr = data.manager.split(" ");
+                                                emplo.manager_id = parseInt(arr[0]);
+                                            }
+                                            var query = connection.query(`UPDATE employee SET first_name = '${emplo.first_name}', last_name = '${emplo.last_name}', role_id = ${emplo.role_id}, manager_id = ${emplo.manager_id} WHERE id = ${emplo.emploID}`, function (err, data) {
+                                                if (err) throw err;
+                                                continuePrompt;
+                                                return data;
+                                            });
                                         });
                                     });
                                 });
@@ -224,11 +256,8 @@ function main() {
                         });
                     });
                 });
-
-            });
-            break;
+                break;
         }
     });
 }
-
 main();
