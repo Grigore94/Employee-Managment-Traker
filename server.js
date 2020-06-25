@@ -24,7 +24,23 @@ function validateNumber(answer) {
     }
     return false;
 };
-
+//function for each swith case to ask user to continue  
+function continuePrompt() {
+    inquirer.prompt([
+        {
+            type: "confirm",
+            name: "continue",
+            message: "Would you like to coninue?"
+        }
+    ]).then(function (data) {
+        if (data.continue) {
+            main();
+        }
+        else {
+            return;
+        }
+    });
+};
 //Switch case
 function main() {
     inquirer.prompt([
@@ -137,9 +153,10 @@ function main() {
                         console.log("Departament added to DB");
                         continuePrompt;
                     });
-                    break;
-                        case "Update Status":
-                var emplo = {
+                    //break;
+                //update employee
+                //case "Update Status":
+                const emplo = {
                     first_name: "",
                     last_name: "",
                     status_id: 0,
@@ -153,7 +170,7 @@ function main() {
                         {
                             type: "input",
                             name: "firstName",
-                            message: "Enter employee first name";
+                            message: "Enter employee first name",
                             validate: validateString
                         },
                         {
@@ -166,7 +183,7 @@ function main() {
                         emplo.first_name = data.firstName;
                         emplo.last_name = data.lastName;
                         var qery = connection.query("SELECT id, title FROM status", function (err, data) {
-                            if (err) throw err:
+                            if (err) throw err;
                             let choices = data.map(x => `${x.id} - ${data.title}`);
                             inquirer.prompt([
                                 {
@@ -208,26 +225,10 @@ function main() {
                     });
                 });
 
-             });
+            });
             break;
-  }
+        }
     });
 }
-//function for each swith case to ask user to continue  
-function continuePrompt() {
-    inquirer.prompt([
-        {
-            type: "confirm",
-            name: "continue",
-            message: "Would you like to coninue?"
-        }
-    ]).then(function (data) {
-        if (data.continue) {
-            main();
-        }
-        else {
-            return;
-        }
-    });
-};
+
 main();
