@@ -2,9 +2,11 @@ const mysql = require("mysql");
 const cTable = require("console.table");
 const inquirer = require("inquirer");
 
+var PORT = process.env.PORT || 3306;
+
 var connection = mysql.createConnection({
     host: "localhost",
-    port: "8080",
+    port: "3306",
     user: "root",
     password: "",
     database: "employee_trakerDB"
@@ -51,10 +53,10 @@ function main() {
             choices: [
                 "Viw All Employees",
                 "View All Statuses",
-                "View All Departments",
+                "View All Departaments",
                 "Add An Employee",
                 "Add A Status",
-                "Add A Department",
+                "Add A Departament",
                 "Update Employee Status // Assign Manager to Employee"
             ]
         }
@@ -86,7 +88,7 @@ function main() {
                 break;
             //adding a new status to db
             case "Add a Status":
-                var qery = connection.query("SELECT id, departament", function (err, data) {
+                var query = connection.query("SELECT id, departament", function (err, data) {
                     if (err) throw err;
                     let choices = data.map(x => `${x.id} - ${x.departament}`);
                     inquirer.prompt([
@@ -155,22 +157,22 @@ function main() {
                     });
                 });
                 break;
-            //adding a department 
-            case "Add A Department":
+            //adding a departament 
+            case "Add A Departament":
                 inquirer.prompt([
                     {
                         type: "input",
-                        name: "department",
-                        message: "Enter the department's name:",
+                        name: "departament",
+                        message: "Enter the departament's name:",
                         validate: validateString
                     }
                 ]).then(function (data) {
-                    var query = connection.query(`INSERT INTO department (department) VALUES ('${data.department}');`, function (err, data) {
+                    var query = connection.query(`INSERT INTO departament (departament) VALUES ('${data.departament}');`, function (err, data) {
                         if (err) throw err;
                         return data;
 
                     });
-                    console.log("Department been added!")
+                    console.log("Departament been added!")
                     continuePrompt();
                 });
                 break;
@@ -196,7 +198,7 @@ function main() {
                         }
                     ]).then(function (data) {
                         var arr = data.employee.split(" ");
-                        emp.empID = parseInt(arr[0]);
+                        emplo.emploID = parseInt(arr[0]);
                         inquirer.prompt([
                             {
                                 type: "input",
@@ -213,7 +215,7 @@ function main() {
                         ]).then(function (data) {
                             emplo.first_name = data.firstName;
                             emplo.last_name = data.lastName;
-                            var qery = connection.query("SELECT id, title FROM status", function (err, data) {
+                            var query = connection.query("SELECT id, title FROM status", function (err, data) {
                                 if (err) throw err;
                                 let choices = data.map(x => `${x.id} - ${data.title}`);
                                 inquirer.prompt([
@@ -226,7 +228,7 @@ function main() {
                                 ]).then(function (data) {
                                     var arr = data.title.split(" ");
                                     emplo.status_id = parseInt(arr[0]);
-                                    var qyery = connection.query("SELECT id, first_name, last_name FROM employee", function (err, data) {
+                                    var query = connection.query("SELECT id, first_name, last_name FROM employee", function (err, data) {
                                         if (err) throw err;
                                         let choices = data.map(x => `${x.id} - ${x.firstName} ${x.lastName}`);
                                         choices.push("Emplyee do not have a manager");
