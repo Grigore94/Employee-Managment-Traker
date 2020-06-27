@@ -2,7 +2,7 @@ const mysql = require("mysql");
 const cTable = require("console.table");
 const inquirer = require("inquirer");
 
-var PORT = process.env.PORT || 3306;
+//var PORT = process.env.PORT || 3306;
 
 var connection = mysql.createConnection({
     host: "localhost",
@@ -21,12 +21,12 @@ function validateString(answer) {
 };
 // making sure the number response does not come as string
 function validateNumber(answer) {
-    if (answer != "" && !NaN(parseInt(answer))) {
+    if (answer != "" && !isNaN(parseInt(answer))) {
         return true;
     }
     return false;
 };
-//function for each swith case to ask user to continue  
+//function for each switch case to ask user to continue  
 function continuePrompt() {
     inquirer.prompt([
         {
@@ -37,12 +37,11 @@ function continuePrompt() {
     ]).then(function (data) {
         if (data.continue) {
             main();
-        }
-        else {
+        }else {
             return;
         }
     });
-};
+}
 //Switch case
 function main() {
     inquirer.prompt([
@@ -53,10 +52,10 @@ function main() {
             choices: [
                 "Viw All Employees",
                 "View All Statuses",
-                "View All Departaments",
+                "View All Departments",
                 "Add An Employee",
                 "Add A Status",
-                "Add A Departament",
+                "Add A Department",
                 "Update Employee Status // Assign Manager to Employee"
             ]
         }
@@ -70,9 +69,9 @@ function main() {
                     continuePrompt();
                 });
                 break;
-            //for departament
-            case "View All Departaments":
-                var query = connection.query("SELECT * FROM departament", function (err, data) {
+            //for department
+            case "View All Departments":
+                var query = connection.query("SELECT * FROM department", function (err, data) {
                     if (err) throw err;
                     console.table(data);
                     continuePrompt();
@@ -88,14 +87,14 @@ function main() {
                 break;
             //adding a new status to db
             case "Add a Status":
-                var query = connection.query("SELECT id, departament", function (err, data) {
+                var query = connection.query("SELECT id, departament FROM department", function (err, data) {
                     if (err) throw err;
-                    let choices = data.map(x => `${x.id} - ${x.departament}`);
+                    let choices = data.map(x => `${x.id} - ${x.department}`);
                     inquirer.prompt([
                         {
                             type: "input",
                             name: "title",
-                            message: "Enter the status:",
+                            message: "Enter the status name:",
                             validate: validateString
                         },
                         {
@@ -106,14 +105,14 @@ function main() {
                         },
                         {
                             type: "list",
-                            name: "departament",
-                            message: "Select the departament",
+                            name: "department",
+                            message: "Select the department",
                             choices: [...choices]
                         }
                     ]).then(function (data) {
-                        var arr = data.departament.split(" ");
-                        var depID = parseInt(arr[0]);
-                        var query = connection.query(`INSERT INTO status (title, salary, departament_id) VALUES ('${data.title}',${data.salary},${depID}`, function (err, data) {
+                        var arr = data.department.split(" ");
+                        var deptID = parseInt(arr[0]);
+                        var query = connection.query(`INSERT INTO status (title, salary, department_id) VALUES ('${data.title}',${data.salary},${deptID}`, function (err, data) {
                             if (err) throw err;
                             console.log("Status added!");
                             continuePrompt;
@@ -148,7 +147,7 @@ function main() {
                     ]).then(function (data) {
                         var arr = data.status.split(" ");
                         var statusID = parseInt(arr[0]);
-                        var query = connection.query(`INSERT INTO employee (first_name, last_name, status_id, manager_id) VALUES ('${data.firstName}','${data.lastName}','${statusID}',0)`, function (err, data) {
+                        var query = connection.query(`INSERT INTO employee (first_name, last_name, status_id, manager_id) VALUES ('${data.firstName}','${data.lastName}','${statusID}', 0)`, function (err, data) {
                             if (err) throw err;
                             console.log("Emloyee added to DB");
                             continuePrompt;
@@ -157,22 +156,22 @@ function main() {
                     });
                 });
                 break;
-            //adding a departament 
-            case "Add A Departament":
+            //adding a department 
+            case "Add A Department":
                 inquirer.prompt([
                     {
                         type: "input",
-                        name: "departament",
-                        message: "Enter the departament's name:",
+                        name: "department",
+                        message: "Enter the department's name:",
                         validate: validateString
                     }
                 ]).then(function (data) {
-                    var query = connection.query(`INSERT INTO departament (departament) VALUES ('${data.departament}');`, function (err, data) {
+                    var query = connection.query(`INSERT INTO department (departament) VALUES ('${data.department}');`, function (err, data) {
                         if (err) throw err;
                         return data;
 
                     });
-                    console.log("Departament been added!")
+                    console.log("Department been added!")
                     continuePrompt();
                 });
                 break;
@@ -236,7 +235,7 @@ function main() {
                                             {
                                                 type: "list",
                                                 name: "manager",
-                                                message: "Cosee a manager for this employee",
+                                                message: "Chose a manager for this employee",
                                                 choices: [...choices]
                                             }
                                         ]).then(function (data) {
@@ -246,7 +245,7 @@ function main() {
                                                 var arr = data.manager.split(" ");
                                                 emplo.manager_id = parseInt(arr[0]);
                                             }
-                                            var query = connection.query(`UPDATE employee SET first_name = '${emplo.first_name}', last_name = '${emplo.last_name}', role_id = ${emplo.role_id}, manager_id = ${emplo.manager_id} WHERE id = ${emplo.emploID}`, function (err, data) {
+                                            var query = connection.query(`UPDATE employee SET first_name = '${emplo.first_name}', last_name = '${emplo.last_name}', status_id = ${emplo.status_id}, manager_id = ${emplo.manager_id} WHERE id = ${emplo.emploID}`, function (err, data) {
                                                 if (err) throw err;
                                                 continuePrompt;
                                                 return data;
