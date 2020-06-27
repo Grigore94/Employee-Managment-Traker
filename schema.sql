@@ -4,9 +4,9 @@ CREATE database employee_trakerDB;
 
 USE employee_trakerDB;
 
-CREATE TABLE departament (
+CREATE TABLE department (
     id INT NOT NULL AUTO_INCREMENT,
-    departament VARCHAR(35) NOT NULL,
+    department VARCHAR(35) NOT NULL,
     PRIMARY KEY (id)
 );
 
@@ -14,7 +14,7 @@ CREATE TABLE status(
 id INT NOT NULL AUTO_INCREMENT,
 title VARCHAR(35) NOT NULL,
 salary DECIMAL(10.4) NOT NULL,
-departament_ID INT NOT NULL,
+department_id INT NOT NULL,
 PRIMARY KEY(id)
 );
 
